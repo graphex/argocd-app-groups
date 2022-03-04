@@ -1,0 +1,7 @@
+.DS_Store
+Chart.lock
+.idea
+.idea/
+*.iml
+*.lock
+/**/charts/*

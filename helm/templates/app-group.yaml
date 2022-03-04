@@ -1,0 +1,5 @@
+{{- range $value := .Values.apps }}
+{{- $templateVals := dict "root" $ "curApp" $value }}
+{{- include "argocd.app" $templateVals }}
+{{- end}}
+

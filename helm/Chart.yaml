@@ -1,0 +1,4 @@
+apiVersion: v2
+description: A Helm chart for deploying ArgoCD Applications to a centralized Argo CD UI to manage a particular environment
+name: argocd-app-groups
+version: 0.5.0

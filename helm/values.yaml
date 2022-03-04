@@ -1,0 +1,43 @@
+---
+
+# These values are used as the default
+# for all the apps it creates
+project: ""
+repoUrl: ""
+repoBranch: ""
+
+#by default these are added to all apps
+#typically used for dev/stage/prod prefixes
+#namespacePrefix: "" #defaults to global.clusterInfo.environment
+#namePrefix: "" #defaults to global.clusterInfo.environment
+
+
+apps:
+  - name: "my-app"
+    namespace: "my-namespace"
+#    releaseName: "helm-release"
+#    project: ""
+#    annotations: {}
+#    labels: {}
+#    ignoreDifferences: false
+#    addNamePrefix: true
+#    namePrefix: "" #defaults to environment
+#    addNamespacePrefix: true
+#    namespacePrefix: "" #defaults to environment
+#    syncPolicy: {}
+#    repoUrl: ""
+#    repoBranch: ""
+#    repoPath: {{ .curApp.name }}
+#    valuesFiles:
+#      - values.yaml
+#      - values-{{ .curApp.environment }}
+# these values are passed to each of the apps that the app group manages
+global:
+  clusterInfo:
+    accountId: ""
+    accountName: ""
+    controlPlaneUrl: ""
+    clusterName: "" #required
+    region: ""
+    environment: "" #required
+    team: ""

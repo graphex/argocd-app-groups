@@ -1,0 +1,46 @@
+---
+
+#when putting a values file in for your app group, remember this is a subchart so indent everything under:
+#app-groups:
+project: test-project
+repoUrl: repoUrlValue
+repoBranch: main
+
+apps:
+  - name: test
+    namespace: test-namespace
+    addNamespacePrefix: false
+    path: myAppPath
+    extraValues: |
+      test-extra-value:
+        myvalue-{{ .Values.global.clusterInfo.clusterName }}: {{ .Values.global.clusterInfo.controlPlaneUrl }}
+  - name: test2
+    namespace: test2-namespace
+    project: otherProject
+    addNamespacePrefix: true
+    path: myAppPath
+    syncPolicy: |
+      automated:
+        prune: true
+        allowEmpty: true
+    ignoreDifferences: |
+      - group: apps
+        kind: Deployment
+        name: test2
+        namespace: {{ .curApp.namespacePrefix }}-test2-namespace
+        jsonPointers:
+          - /spec/replicas
+    annotations: |
+      team: {{.Values.global.clusterInfo.team}}
+    extraValues: |
+      test-extra-value:
+        myvalue-{{ .Values.global.clusterInfo.clusterName }}: {{ .Values.global.clusterInfo.controlPlaneUrl }}
+global:
+  clusterInfo:
+    accountId: "testAccountId"
+    accountName: "testAccountName"
+    controlPlaneUrl: "testControlPlaneUrl"
+    clusterName: "testClusterName"
+    region: "testRegion"
+    environment: "dev"
+    team: "testTeam"
