@@ -2,12 +2,12 @@ apiVersion: v1
 entries:
   argocd-app-groups:
   - apiVersion: v2
-    created: "2022-03-07T20:00:18.303304-07:00"
+    created: "2022-03-07T23:35:29.586071-07:00"
     description: A Helm chart for deploying ArgoCD Applications to a centralized Argo
       CD UI to manage a particular environment
-    digest: 7a2fa6c7acd456c1f26192b874357418f836ad55604d356d88a8badb8dbaa665
+    digest: ae837dbf6f70f5379b36570bdbfefaf9ce3185eecbd71dc35851fd9db4a6410a
     name: argocd-app-groups
     urls:
-    - argocd-app-groups-0.5.0.tgz
-    version: 0.5.0
-generated: "2022-03-07T20:00:18.301657-07:00"
+    - argocd-app-groups-0.5.1.tgz
+    version: 0.5.1
+generated: "2022-03-07T23:35:29.584019-07:00"
