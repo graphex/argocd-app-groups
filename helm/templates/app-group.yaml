@@ -1,4 +1,5 @@
-{{- range $value := .Values.apps }}
+{{- range $key, $value := .Values.apps }}
+{{- $_ := merge $value (set (dict) "name" $key ) }}
 {{- $templateVals := dict "root" $ "curApp" $value }}
 {{- include "argocd.app" $templateVals }}
 {{- end}}

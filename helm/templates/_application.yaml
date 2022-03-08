@@ -5,23 +5,25 @@
 {{- $curApp := (dict) }}
 {{- $_ = merge $curApp .curApp }}
 {{- /* merge root values to curApp, retaining curApp value if provided */}}
-{{- $_ = merge $curApp (pick $root.Values "project" "repoUrl" "repoBranch" "repoPath" "namespacePrefix" "namePrefix" ) }}
+{{- $_ = merge $curApp (pick $root.Values "project" "repoUrl" "repoBranch" "repoPath" "namespacePrefix" "namePrefix" "addNamespacePrefix" "addNamePrefix" ) }}
 {{- /* use environment for namespace/name prefix if not provided at app or root level */}}
-{{- $_ = merge $curApp (set (dict) "namespacePrefix" (get $root.Values.global.clusterInfo "environment") ) }}
-{{- $_ = merge $curApp (set (dict) "namePrefix" (get $root.Values.global.clusterInfo "environment") ) }}
+{{- if hasKey $root.Values "global" }}
+  {{- $_ = merge $curApp (pick $root.Values.global.clusterInfo "clusterName" "environment") }}
+  {{- $_ = merge $curApp (set (dict) "namespacePrefix" (get $root.Values.global.clusterInfo "environment") ) }}
+  {{- $_ = merge $curApp (set (dict) "namePrefix" (get $root.Values.global.clusterInfo "environment") ) }}
+{{- end }}
 {{- /* put clusterName and enviornment into curApp, retaining curApp value if provided */}}
-{{- $_ = merge $curApp (pick $root.Values.global.clusterInfo "clusterName" "environment") }}
 {{- $_ = set $root "curApp" $curApp }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  {{- if and ($root.curApp.name) ((hasKey $root.curApp "addNamePrefix") | ternary $root.curApp.addNamePrefix true) }}
-  name: {{ $root.curApp.namePrefix }}-{{ required "a name must be specified for every app" .curApp.name }}
+  {{- if and ($root.curApp.namePrefix) ((hasKey $root.curApp "addNamePrefix") | ternary $root.curApp.addNamePrefix true) }}
+  name: {{ printf "%s-%s" $root.curApp.namePrefix (required "a name must be specified for every app" .curApp.name) | quote }}
   {{- else }}
-  name: {{ required "a name must be specified for every app" .curApp.name }}
+  name: {{ required "a name must be specified for every app" .curApp.name | quote }}
   {{- end }}
-  namespace: argocd
+  namespace: {{ $root.applicationNamespace | default "argocd" | quote }}
   finalizers:
     - resources-finalizer.argocd.argoproj.io
   {{- if hasKey $root.curApp "annotations" | ternary $root.curApp.annotations false }}
@@ -35,12 +37,12 @@ metadata:
 spec:
   destination:
     {{- if and ($root.curApp.namespacePrefix) ((hasKey $root.curApp "addNamespacePrefix") | ternary $root.curApp.addNamespacePrefix true) }}
-    namespace: {{ $root.curApp.namespacePrefix }}-{{ required "A namespace must be specified for every app" $root.curApp.namespace }}
+    namespace: {{ printf "%s-%s" $root.curApp.namespacePrefix (required "A namespace must be specified for every app" $root.curApp.namespace) | quote }}
     {{- else }}
-    namespace: {{ required "A namespace must be specified for every app" $root.curApp.namespace }}
+    namespace: {{ required "A namespace must be specified for every app" $root.curApp.namespace | quote }}
     {{- end }}
-    name: {{ required "either app.clusterName or global.clusterInfo.clusterName must be specified" $root.curApp.clusterName }}
-  project: {{ $root.curApp.project }}
+    name: {{ $root.curApp.clusterName | default "https://kubernetes.default.svc" | quote }}
+  project: {{ $root.curApp.project | default "default" | quote }}
   {{- if $root.curApp.syncPolicy | default false }}
   syncPolicy:
     {{- (tpl $root.curApp.syncPolicy $root) | nindent 4 }}
@@ -50,9 +52,9 @@ spec:
     {{- (tpl $root.curApp.ignoreDifferences $root) | nindent 4 }}
   {{- end }}
   source:
-    repoURL: {{ tpl (toYaml $root.curApp.repoUrl) $root }}
-    path: {{ $root.curApp.repoPath | default $root.curApp.name }}
-    targetRevision: {{ $root.curApp.repoBranch}}
+    repoURL: {{ tpl (toYaml (required "A repoUrl must be provided" $root.curApp.repoUrl)) $root | quote }}
+    path: {{ $root.curApp.repoPath | default $root.curApp.name | quote }}
+    targetRevision: {{ $root.curApp.repoBranch | default "main" | quote }}
     {{- if $root.curApp.plugin | default false }}
     plugin:
       name: {{ $root.curApp.plugin.name }}
@@ -67,20 +69,26 @@ spec:
       releaseName: {{ .curApp.releaseName }}
       {{- end }}
       valueFiles:
-        {{- if (hasKey $root.curApp "valuesFiles") }}
-        {{- tpl ($root.curApp.valuesFiles) $root | nindent 6 }}
+        {{- if (hasKey $root.curApp "valueFiles") }}
+        {{- tpl (toYaml $root.curApp.valueFiles) $root | nindent 8 }}
         {{- else }}
         - values.yaml
-        {{- if (hasKey $root.curApp "environment") }}
+        {{- if ($root.curApp.environment) }}
         - values-{{ $root.curApp.environment }}.yaml
         {{- end }}
         {{- end }}
+      {{- if or (hasKey $root.Values "global") (hasKey $root.curApp "extraValues") }}
       values: |
+        {{- if hasKey $root.Values "global" }}
         global:
+          {{- if hasKey $root.Values.global "clusterInfo" }}
           clusterInfo:
-{{toYaml $root.Values.global.clusterInfo | indent 12}}
-{{- if hasKey $root.curApp "extraValues" }}
-{{(tpl $root.curApp.extraValues $root) | indent 8}}
+{{ tpl (toYaml $root.Values.global.clusterInfo) $root | indent 12}}
+          {{- end }}
+        {{- end }}
+        {{- if hasKey $root.curApp "extraValues" }}
+{{tpl $root.curApp.extraValues $root | indent 8}}
+        {{- end }}
+      {{- end }}
 {{- end }}
-    {{- end }}
 {{- end }}

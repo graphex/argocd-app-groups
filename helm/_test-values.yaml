@@ -7,14 +7,14 @@ repoUrl: repoUrlValue
 repoBranch: main
 
 apps:
-  - name: test
+  test-minimal:
     namespace: test-namespace
     addNamespacePrefix: false
-    path: myAppPath
-    extraValues: |
-      test-extra-value:
-        myvalue-{{ .Values.global.clusterInfo.clusterName }}: {{ .Values.global.clusterInfo.controlPlaneUrl }}
-  - name: test2
+    addNamePrefix: false
+    valueFiles:
+      - values-{{.curApp.name}}.yaml
+  test2:
+    name: overridden-name-here
     namespace: test2-namespace
     project: otherProject
     addNamespacePrefix: true
@@ -26,21 +26,22 @@ apps:
     ignoreDifferences: |
       - group: apps
         kind: Deployment
-        name: test2
-        namespace: {{ .curApp.namespacePrefix }}-test2-namespace
+        name: {{ .curApp.name }}
+        namespace: "{{ .curApp.namespacePrefix }}-test2-namespace"
         jsonPointers:
           - /spec/replicas
     annotations: |
-      team: {{.Values.global.clusterInfo.team}}
+      team: "{{ .Values.global.clusterInfo.team }}"
     extraValues: |
       test-extra-value:
-        myvalue-{{ .Values.global.clusterInfo.clusterName }}: {{ .Values.global.clusterInfo.controlPlaneUrl }}
+        myvalue-{{ .Values.global.clusterInfo.environment }}: {{ .Values.global.clusterInfo.controlPlaneUrl }}
+      simple: "key-value"
 global:
   clusterInfo:
     accountId: "testAccountId"
     accountName: "testAccountName"
     controlPlaneUrl: "testControlPlaneUrl"
-    clusterName: "testClusterName"
+    clusterName: "test-cluster-name"
     region: "testRegion"
     environment: "dev"
     team: "testTeam"

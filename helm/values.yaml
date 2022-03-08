@@ -1,10 +1,12 @@
 ---
 
 # These values are used as the default
-# for all the apps it creates
-project: ""
-repoUrl: ""
-repoBranch: ""
+# for all the apps from this appGroup
+project: "" #defaults to "default"
+repoUrl: "repoUrl required" #required
+repoBranch: "" #defaults to "main"
+
+applicationNamespace: "" #defaults to "argocd"
 
 #by default these are added to all apps
 #typically used for dev/stage/prod prefixes
@@ -13,7 +15,7 @@ repoBranch: ""
 
 
 apps:
-  - name: "my-app"
+  my-app:
     namespace: "my-namespace"
 #    releaseName: "helm-release"
 #    project: ""
@@ -28,16 +30,19 @@ apps:
 #    repoUrl: ""
 #    repoBranch: ""
 #    repoPath: {{ .curApp.name }}
-#    valuesFiles:
+#    valueFiles:
 #      - values.yaml
 #      - values-{{ .curApp.environment }}
+
+
 # these values are passed to each of the apps that the app group manages
-global:
-  clusterInfo:
-    accountId: ""
-    accountName: ""
-    controlPlaneUrl: ""
-    clusterName: "" #required
-    region: ""
-    environment: "" #required
-    team: ""
+# It is highly recommended to use "environment" if you have different clusters you are deploying to
+#global:
+#  clusterInfo:
+#    accountId: ""
+#    accountName: ""
+#    controlPlaneUrl: ""
+#    clusterName: "" #defaults to local cluster (https://kubernetes.default.svc)
+#    region: ""
+#    environment: ""
+#    team: ""
