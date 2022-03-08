@@ -4,4 +4,3 @@ Chart.lock
 .idea/
 *.iml
 *.lock
-/**/charts/*
