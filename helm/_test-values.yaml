@@ -1,7 +1,11 @@
 ---
+#In general, most values can have helm tempates embedded in them, and .curApp will be populated
+# with the pre-merged/inherited values for an application
 
-#when putting a values file in for your app group, remember this is a subchart so indent everything under:
-#app-groups:
+#When putting a values file in for your app group, remember this is a subchart so indent everything under:
+#argocd-app-groups:
+
+
 project: test-project
 repoUrl: repoUrlValue
 repoBranch: main

@@ -8,9 +8,11 @@
 {{- $_ = merge $curApp (pick $root.Values "project" "repoUrl" "repoBranch" "repoPath" "namespacePrefix" "namePrefix" "addNamespacePrefix" "addNamePrefix" ) }}
 {{- /* use environment for namespace/name prefix if not provided at app or root level */}}
 {{- if hasKey $root.Values "global" }}
+{{- if hasKey $root.Values.global "clusterInfo" }}
   {{- $_ = merge $curApp (pick $root.Values.global.clusterInfo "clusterName" "environment") }}
   {{- $_ = merge $curApp (set (dict) "namespacePrefix" (get $root.Values.global.clusterInfo "environment") ) }}
   {{- $_ = merge $curApp (set (dict) "namePrefix" (get $root.Values.global.clusterInfo "environment") ) }}
+{{- end }}
 {{- end }}
 {{- /* put clusterName and enviornment into curApp, retaining curApp value if provided */}}
 {{- $_ = set $root "curApp" $curApp }}
@@ -42,7 +44,7 @@ spec:
     namespace: {{ required "A namespace must be specified for every app" $root.curApp.namespace | quote }}
     {{- end }}
     name: {{ $root.curApp.clusterName | default "https://kubernetes.default.svc" | quote }}
-  project: {{ $root.curApp.project | default "default" | quote }}
+  project: {{ tpl $root.curApp.project $root | default "default" | quote }}
   {{- if $root.curApp.syncPolicy | default false }}
   syncPolicy:
     {{- (tpl $root.curApp.syncPolicy $root) | nindent 4 }}
@@ -80,11 +82,11 @@ spec:
       {{- if or (hasKey $root.Values "global") (hasKey $root.curApp "extraValues") }}
       values: |
         {{- if hasKey $root.Values "global" }}
+        {{- if hasKey $root.Values.global "clusterInfo" }}
         global:
-          {{- if hasKey $root.Values.global "clusterInfo" }}
           clusterInfo:
 {{ tpl (toYaml $root.Values.global.clusterInfo) $root | indent 12}}
-          {{- end }}
+        {{- end }}
         {{- end }}
         {{- if hasKey $root.curApp "extraValues" }}
 {{tpl $root.curApp.extraValues $root | indent 8}}

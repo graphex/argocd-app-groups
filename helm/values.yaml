@@ -3,20 +3,26 @@
 # These values are used as the default
 # for all the apps from this appGroup
 project: "" #defaults to "default"
-repoUrl: "repoUrl required" #required
+repoUrl: "" #required
 repoBranch: "" #defaults to "main"
 
 applicationNamespace: "" #defaults to "argocd"
 
-#by default these are added to all apps
-#typically used for dev/stage/prod prefixes
+# By default these are added to all apps
+# This is typically used for dev/stage/prod prefixes, so recommend leaving them
 #namespacePrefix: "" #defaults to global.clusterInfo.environment
 #namePrefix: "" #defaults to global.clusterInfo.environment
 
 
 apps:
-  my-app:
-    namespace: "my-namespace"
+# minimal example (for normal dev/stage/prod scenarios)
+#  my-minimal-app:
+#    namespace: test-namespace
+
+# More detailed list of possible values
+#  my-app:
+#    name: "override-app-name-here" #defaults to object name in previous line, with namePrefix
+#    namespace: "my-namespace"
 #    releaseName: "helm-release"
 #    project: ""
 #    annotations: {}
