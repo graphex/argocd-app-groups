@@ -43,7 +43,7 @@ spec:
     {{- else }}
     namespace: {{ required "A namespace must be specified for every app" $root.curApp.namespace | quote }}
     {{- end }}
-    name: {{ $root.curApp.clusterName | default "https://kubernetes.default.svc" | quote }}
+    name: {{ $root.curApp.clusterName | default "in-cluster" | quote }}
   project: {{ tpl $root.curApp.project $root | default "default" | quote }}
   {{- if $root.curApp.syncPolicy | default false }}
   syncPolicy:
